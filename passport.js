@@ -3,13 +3,13 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const { ExtractJwt } = require('passport-jwt');
 const LocalStorage = require('passport-local').Strategy;
 const GooglePlusTokenStrategy = require('passport-google-plus-token');
-const config  = require('./config');
+const { JWT_SECRET }  = require('./config');
 const User = require('./models/usersModel');
 
 // JSON WEB TOKENS STRATEGY ( 토큰 검증, 유효성 검사 )
 passport.use(new JwtStrategy({
     jwtFromRequest: ExtractJwt.fromHeader('authorization'),
-    secretOrKey: config.JWT_SECRET
+    secretOrKey: JWT_SECRET
 }, async (payload, done) => {
     
     try {
@@ -36,7 +36,7 @@ passport.use(new LocalStorage({
     
     try{
         // Find the user given the email
-        const user = await User.findOne({"local.email": email});
+        const user = await User.findOne({email});
 
         if(!user){
             return done(null, false);
@@ -59,18 +59,22 @@ passport.use(new LocalStorage({
 }));
 
 passport.use('googleToken', new GooglePlusTokenStrategy({
-    clientID: config.oauth.google.clientID,
-    clientSecret: config.oauth.google.clientSecret
+    //clientID: config.oauth.google.clientID,
+    //clientSecret: config.oauth.google.clientSecret
+    clientID: '480461188243-5g2ot9c2e4r28bat3fbq9r8ad83tr459.apps.googleusercontent.com',
+    clientSecret: '3DBxXPR_sfQivZxmVCufRbQQ'
 }, async(accessToken, refreshToken, profile, done) => {
 
-    try{
-        // Should have full user profile over here
-        console.log('profile', profile);
-        console.log('accessToken', accessToken);
-        console.log('refreshToken', refreshToken);
+    console.log("test");
+
+    // try{
+    //     // Should have full user profile over here
+    //     console.log('profile', profile);
+    //     console.log('accessToken', accessToken);
+    //     console.log('refreshToken', refreshToken);
         
-    }catch(error){
-        done(error, false, error.message);
-    }
+    // }catch(error){
+    //     done(error, false, error.message);
+    // }
 
 }));

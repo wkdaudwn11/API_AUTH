@@ -47,9 +47,15 @@ module.exports = {
         res.status(200).json({ token });
     },
 
+    // googleOAuth: async (req, res, next) => {
+    //     console.log('google here');
+    //     const token = signToken(req.uesr);
+    //     res.status(200).json({ token });
+    // },
     googleOAuth: async (req, res, next) => {
-        console.log('google here');
-        const token = signToken(req.uesr);
+        console.log('google got here');
+        const token = signToken(req.user);
+        console.log(req.user);
         res.status(200).json({ token });
     },
 
