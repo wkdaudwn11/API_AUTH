@@ -13,8 +13,8 @@ router.route('/signup')
     .post(validateBody(schemas.authSchema), usersController.signUp);
 
 router.route('/signin')
-    //.post(usersController.signIn);
-    .post(validateBody(schemas.authSchema), passport.authenticate('local', {session: false}), usersController.signIn);
+    .post(usersController.signIn);
+    //.post(validateBody(schemas.authSchema), passport.authenticate('local', {session: false}), usersController.signIn);
 
 // router.route('/oauth/google')
 //     .post(passport.authenticate('googleToken', { session: false }), usersController.googleOAuth);

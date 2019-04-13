@@ -1,7 +1,7 @@
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
 const { ExtractJwt } = require('passport-jwt');
-const LocalStorage = require('passport-local').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
 const GooglePlusTokenStrategy = require('passport-google-plus-token');
 const FacebookPlusTokenStrategy = require('passport-facebook-token');
 const config  = require('./config');
@@ -30,8 +30,8 @@ passport.use(new JwtStrategy({
 
 }));
 
-// LOCAL STRATEGY (로컬로 로그인 할 때 쓰임)
-passport.use(new LocalStorage({
+//LOCAL STRATEGY (로컬로 로그인 할 때 쓰임)
+passport.use(new LocalStrategy({
     usernameFiled: 'email'
 }, async (email, password, done) => {
     
@@ -59,6 +59,8 @@ passport.use(new LocalStorage({
     }
 }));
 
+
+
 passport.use('googleToken', new GooglePlusTokenStrategy({
     //clientID: config.oauth.google.clientID,
     //clientSecret: config.oauth.google.clientSecret
@@ -81,10 +83,8 @@ passport.use('googleToken', new GooglePlusTokenStrategy({
 }));
 
 passport.use('facebookToken', new FacebookPlusTokenStrategy({
-    //clientID: config.oauth.facebook.clientID,
-    //clientSecret: config.oauth.facebook.clientSecret
-    clientID: '389531031827409',
-    clientSecret: '70e6a628f1a2373d915de0ea31cf2471'
+    clientID: config.oauth.facebook.clientID,
+    clientSecret: config.oauth.facebook.clientSecret
 }, async(accessToken, refreshToken, profile, done) => {
 
     try{
@@ -92,6 +92,22 @@ passport.use('facebookToken', new FacebookPlusTokenStrategy({
         console.log('profile', profile);
         console.log('accessToken', accessToken);
         console.log('refreshToken', refreshToken);
+
+        const existingUser = await User.findOne({ "facebook.id": profile.id });
+        if(existingUser){
+            return done(null, existingUser);
+        }
+
+        const newUser = new User({
+            method: 'facebook',
+            facebook: {
+                id: profile.id,
+                email: profile.emails[0].value
+            }
+        });
+
+        await newUser.save();
+        done(null, newUser);
         
     }catch(error){
         done(error, false, error.message);
