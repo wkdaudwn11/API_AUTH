@@ -3,13 +3,14 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const { ExtractJwt } = require('passport-jwt');
 const LocalStorage = require('passport-local').Strategy;
 const GooglePlusTokenStrategy = require('passport-google-plus-token');
-const { JWT_SECRET }  = require('./config');
+const FacebookPlusTokenStrategy = require('passport-facebook-token');
+const config  = require('./config');
 const User = require('./models/usersModel');
 
 // JSON WEB TOKENS STRATEGY ( 토큰 검증, 유효성 검사 )
 passport.use(new JwtStrategy({
     jwtFromRequest: ExtractJwt.fromHeader('authorization'),
-    secretOrKey: JWT_SECRET
+    secretOrKey: config.JWT_SECRET
 }, async (payload, done) => {
     
     try {
@@ -76,5 +77,24 @@ passport.use('googleToken', new GooglePlusTokenStrategy({
     // }catch(error){
     //     done(error, false, error.message);
     // }
+
+}));
+
+passport.use('facebookToken', new FacebookPlusTokenStrategy({
+    //clientID: config.oauth.facebook.clientID,
+    //clientSecret: config.oauth.facebook.clientSecret
+    clientID: '389531031827409',
+    clientSecret: '70e6a628f1a2373d915de0ea31cf2471'
+}, async(accessToken, refreshToken, profile, done) => {
+
+    try{
+        // Should have full user profile over here
+        console.log('profile', profile);
+        console.log('accessToken', accessToken);
+        console.log('refreshToken', refreshToken);
+        
+    }catch(error){
+        done(error, false, error.message);
+    }
 
 }));

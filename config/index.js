@@ -9,8 +9,8 @@ module.exports = {
             clientSecret: '3DBxXPR_sfQivZxmVCufRbQQ'
         },
         facebook: {
-            clientID: '',
-            clientSecret: ''
+            clientID: '389531031827409',
+            clientSecret: '70e6a628f1a2373d915de0ea31cf2471'
         }
     }
 }
