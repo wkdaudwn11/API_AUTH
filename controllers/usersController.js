@@ -22,7 +22,7 @@ module.exports = {
         const { email, password } = req.value.body;
 
         //Check if there is a user with the same email
-        const foundUser = await User.findOne({email});
+        const foundUser = await User.findOne({"local.email": email});
         if(foundUser) {
             return res.status(403).json({error: 'Email is already in use'});
         }
@@ -40,7 +40,17 @@ module.exports = {
 
     signIn: async (req, res, next) => {
         // Generate token
-        console.log("usersController signIn()!");
+        //console.log("usersController signIn()!");
+
+        const token = signToken(req.user);
+        console.log(token);
+        res.status(200).json({ token });
+    },
+
+    googleOAuth: async (req, res, next) => {
+        console.log('google here');
+        const token = signToken(req.uesr);
+        res.status(200).json({ token });
     },
 
     secret: async (req, res, next) => {

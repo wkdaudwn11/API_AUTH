@@ -2,13 +2,14 @@ const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
 const { ExtractJwt } = require('passport-jwt');
 const LocalStorage = require('passport-local').Strategy;
-const { JWT_SECRET }  = require('./config');
+const GooglePlusTokenStrategy = require('passport-google-plus-token');
+const config  = require('./config');
 const User = require('./models/usersModel');
 
 // JSON WEB TOKENS STRATEGY ( 토큰 검증, 유효성 검사 )
 passport.use(new JwtStrategy({
     jwtFromRequest: ExtractJwt.fromHeader('authorization'),
-    secretOrKey: JWT_SECRET
+    secretOrKey: config.JWT_SECRET
 }, async (payload, done) => {
     
     try {
@@ -28,22 +29,48 @@ passport.use(new JwtStrategy({
 
 }));
 
-// LOCAL STRATEGY
+// LOCAL STRATEGY (로컬로 로그인 할 때 쓰임)
 passport.use(new LocalStorage({
     usernameFiled: 'email'
 }, async (email, password, done) => {
     
-    // Find the user given the email
-    const user = await User.findOne({email});
+    try{
+        // Find the user given the email
+        const user = await User.findOne({"local.email": email});
 
-    if(!user){
-        return done(null, false);
+        if(!user){
+            return done(null, false);
+        }
+    
+        // Check if the password is correct
+        const isMatch = await user.isValidPassword(password);
+    
+        // If not, handle it
+        if(!isMatch){
+            return done(null, false);
+        }
+    
+        // Otherwise, return the user
+        done(null, user);
+
+    }catch(error){
+        done(error,false);
     }
+}));
 
-    // Check if the password is correct
+passport.use('googleToken', new GooglePlusTokenStrategy({
+    clientID: config.oauth.google.clientID,
+    clientSecret: config.oauth.google.clientSecret
+}, async(accessToken, refreshToken, profile, done) => {
 
-    // If not, handle it
-
-    // Otherwise, return the user
+    try{
+        // Should have full user profile over here
+        console.log('profile', profile);
+        console.log('accessToken', accessToken);
+        console.log('refreshToken', refreshToken);
+        
+    }catch(error){
+        done(error, false, error.message);
+    }
 
 }));
